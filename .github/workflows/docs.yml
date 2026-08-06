@@ -28,23 +28,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends doxygen graphviz
 
-      - name: Fetch the theme
-        run: |
-          git clone --depth 1 --branch v2.3.4 \
-            https://github.com/jothepro/doxygen-awesome-css.git .doxygen-awesome \
-          || git clone --depth 1 \
-            https://github.com/jothepro/doxygen-awesome-css.git .doxygen-awesome
-
-      # WARN_NO_PARAMDOC is on, so an undocumented parameter fails the build
-      # rather than quietly shipping a gap in the reference.
+      # WARN_NO_PARAMDOC is on and warnings are failures, so an undocumented
+      # parameter breaks the build rather than shipping a gap in the reference.
+      # `make docs` applies the same gate locally.
       - name: Build
-        run: |
-          doxygen Doxyfile 2>doxygen.log || { cat doxygen.log; exit 1; }
-          if [ -s doxygen.log ]; then
-            echo "::error::doxygen emitted warnings"
-            cat doxygen.log
-            exit 1
-          fi
+        run: make docs
 
       - uses: actions/upload-pages-artifact@v3
         with:

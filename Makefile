@@ -57,11 +57,18 @@ fuzz: tests/fuzz_parse.c $(TESTDEP)
 
 check: test asan fuzz
 
-# API reference. Needs doxygen; the theme is optional but recommended:
-#   git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css .doxygen-awesome
+# API reference. Fetches the theme on first run. Warnings are failures here
+# too, so `make docs` and the docs CI job agree.
+THEME_URL = https://github.com/jothepro/doxygen-awesome-css.git
+THEME_TAG = v2.3.4
+
 docs:
 	@command -v doxygen >/dev/null || { echo "doxygen not installed"; exit 1; }
-	doxygen Doxyfile
+	@test -d .doxygen-awesome || git clone --depth 1 --branch $(THEME_TAG) \
+	    $(THEME_URL) .doxygen-awesome || git clone --depth 1 $(THEME_URL) .doxygen-awesome
+	@doxygen Doxyfile 2>doxygen.log; rc=$$?; \
+	  if grep -qE '(warning|error):' doxygen.log || [ $$rc -ne 0 ]; then \
+	    cat doxygen.log; echo "docs: build not clean"; exit 1; fi
 	@echo "open docs/html/index.html"
 
 

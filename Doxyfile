@@ -26,24 +26,21 @@ TYPEDEF_HIDES_STRUCT   = NO
 # Document the public API, not the internals. The .c files are indexed for
 # their file-level comments; their static helpers stay out of the reference.
 EXTRACT_ALL            = NO
-EXTRACT_STATIC         = NO
+# YES so the static inline convenience wrappers in gree.h are documented.
+# EXTRACT_ALL is NO, so this only surfaces statics that carry a doc comment -
+# the undocumented helpers inside the .c files stay out.
+EXTRACT_STATIC         = YES
 EXTRACT_PRIVATE        = NO
 HIDE_UNDOC_MEMBERS     = YES
 
 # Resolve the feature #ifdefs so conditionally compiled API still appears.
+# The values come from gree_config.h itself; do not predefine them here or the
+# #ifndef guards get skipped and the macros vanish from the reference.
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
-PREDEFINED             = GREE_ENABLE_V1=1 \
-                         GREE_ENABLE_V2=1 \
-                         GREE_ENABLE_DISCOVERY=1 \
-                         GREE_NAME_LEN=20 \
-                         GREE_ADDR_SZ=8 \
-                         GREE_PKT_BUF=768 \
-                         GREE_INNER_BUF=448 \
-                         GREE_CRYPTO=0 \
-                         GREE_CRYPTO_BUILTIN=0 \
-                         __cplusplus=
+PREDEFINED             = __cplusplus=
+
 
 # Catch doc rot: an undocumented parameter is a build warning.
 QUIET                  = YES

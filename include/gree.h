@@ -417,7 +417,7 @@ void ac_set_timeout(struct ac_state *ac, unsigned ms, unsigned retries);
  * @param out Array to fill, at least @p max entries.
  * @param max Capacity of @p out, must be non-zero. Collection stops once it is
  *            full, so a small @p max on a busy network hides devices.
- * @return Number of devices written, or a negative #errors code.
+ * @return Number of devices written, or a negative @ref errors "result code".
  *
  * @note Where the broadcast goes is your transport's business. One tested unit
  *       answered @c 255.255.255.255 but never its own subnet broadcast.
@@ -450,7 +450,7 @@ int ac_bind(struct ac_state *ac);
  * have trimmed them, use ac_poll_props() instead.
  *
  * @param ac Client.
- * @return #AC_OK or a negative #errors code.
+ * @return #AC_OK or a negative @ref errors "result code".
  * @retval AC_E_NOBUF The reply did not fit #GREE_INNER_BUF.
  */
 int ac_poll(struct ac_state *ac);
@@ -470,7 +470,7 @@ int ac_poll(struct ac_state *ac);
  * @param props Array of #ac_prop values, or @c NULL to mean "all of them".
  * @param n     Number of entries in @p props, 1 to #AC_PROP_COUNT. Must be
  *              non-zero unless @p props is @c NULL.
- * @return #AC_OK or a negative #errors code.
+ * @return #AC_OK or a negative @ref errors "result code".
  */
 int ac_poll_props(struct ac_state *ac, const uint8_t *props, unsigned n);
 
@@ -484,7 +484,7 @@ int ac_poll_props(struct ac_state *ac, const uint8_t *props, unsigned n);
  * @param ac Client.
  * @retval AC_OK Sent and acknowledged, or nothing was pending.
  * @retval AC_E_DEVICE The unit rejected the command; see @c ac->last_r.
- * @return Otherwise a negative #errors code.
+ * @return Otherwise a negative @ref errors "result code".
  */
 int ac_commit(struct ac_state *ac);
 
@@ -536,7 +536,7 @@ int ac_room_temp(const struct ac_state *ac);
 
 /**
  * @brief Human-readable form of a result code.
- * @param err Any #errors value.
+ * @param err Any @ref errors "result code" value.
  * @return A short static string. Never @c NULL.
  */
 const char *ac_strerror(int err);

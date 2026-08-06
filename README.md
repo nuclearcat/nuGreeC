@@ -1,10 +1,10 @@
 # nuGreeC
 
-[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/nuclearcat/nuGreeC#license)
 [![CI](https://github.com/nuclearcat/nuGreeC/actions/workflows/ci.yml/badge.svg)](https://github.com/nuclearcat/nuGreeC/actions/workflows/ci.yml)
 [![Docs](https://github.com/nuclearcat/nuGreeC/actions/workflows/docs.yml/badge.svg)](https://nuclearcat.github.io/nuGreeC/)
-[![Language: C99](https://img.shields.io/badge/language-C99-orange.svg)](#)
-[![Flash: 5 KB](https://img.shields.io/badge/flash-from%205.0%20KB-green.svg)](#footprint)
+[![Language: C99](https://img.shields.io/badge/language-C99-orange.svg)](https://github.com/nuclearcat/nuGreeC)
+[![Flash: 5 KB](https://img.shields.io/badge/flash-from%205.0%20KB-green.svg)](https://github.com/nuclearcat/nuGreeC#footprint)
 
 **A Gree / Sinclair / Tosot air-conditioner client for microcontrollers.**
 
@@ -89,14 +89,16 @@ than 1 for on, and `AC_BUZZER` is inverted.
 For the generated reference:
 
 ```sh
-git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css .doxygen-awesome
-make docs          # -> docs/html/index.html
+make docs          # fetches the theme on first run -> docs/html/index.html
 ```
 
-`.github/workflows/docs.yml` publishes the same thing to GitHub Pages on every
-push to `main`. `WARN_NO_PARAMDOC` is on and warnings fail the build, so an
-undocumented parameter breaks CI rather than silently leaving a hole in the
-reference.
+`.github/workflows/docs.yml` runs the same `make docs` and publishes to GitHub
+Pages on every push to `main`, so a local build and CI agree by construction.
+
+Doxygen warnings are build failures. A bogus `@param` name, an undocumented
+parameter, or a dangling `#reference` all break the build rather than silently
+leaving a hole in the reference — each of those three was tested by injecting
+one and confirming the build rejects it.
 
 ## The transport
 
