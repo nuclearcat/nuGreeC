@@ -185,12 +185,59 @@ you know it.
 
 ## Properties
 
-`ac_get`/`ac_set` take an `enum ac_prop` and use raw wire values: `AC_POW`,
-`AC_MOD`, `AC_SETTEM`, `AC_TEMUN`, `AC_TEMREC`, `AC_TEMSEN`, `AC_WDSPD`,
-`AC_AIR`, `AC_BLO`, `AC_HEALTH`, `AC_SWHSLP`, `AC_SLPMOD`, `AC_LIG`,
-`AC_SWINGLFRIG`, `AC_SWUPDN`, `AC_QUIET`, `AC_TUR`, `AC_STHT`, `AC_SVST`,
-`AC_DWET`, `AC_DWATSEN`, `AC_DFLTR`, `AC_DWATFUL`, `AC_DMOD`,
-`AC_HEATCOOLTYPE`, `AC_BUZZER`.
+```c
+int  ac_get(const struct ac_state *ac, enum ac_prop p);   /* last known value */
+void ac_set(struct ac_state *ac, enum ac_prop p, int value);  /* queue a write */
+```
+
+Both take an `enum ac_prop` and speak **raw wire values** — the numbers the
+unit itself uses, not cooked units. `ac_get()` returns the value from the last
+poll, or `AC_UNKNOWN` (`INT16_MIN`) if the device has never reported that
+property; that is deliberately distinct from a genuine `0`, because a unit
+without a feature simply omits the field and answering `0` would be wrong
+rather than merely unknown. `ac_set()` only marks the property dirty —
+nothing goes out until `ac_commit()`, which batches every pending write into
+a single datagram.
+
+| Property | Wire name | Values | Notes |
+| --- | --- | --- | --- |
+| `AC_POW` | `Pow` | 0 off, 1 on | |
+| `AC_MOD` | `Mod` | 0–4, `enum ac_mode` | auto, cool, dry, fan, heat |
+| `AC_SETTEM` | `SetTem` | typically 16–30 °C / 61–86 °F | unit per `AC_TEMUN`; 8 °C is the frost setpoint |
+| `AC_TEMUN` | `TemUn` | 0 celsius, 1 fahrenheit | |
+| `AC_TEMREC` | `TemRec` | 0 or 1 | fahrenheit half-degree bit |
+| `AC_TEMSEN` | `TemSen` | raw, **not degrees** | use `ac_room_temp()` |
+| `AC_WDSPD` | `WdSpd` | 0–5, `enum ac_fan` | auto, low, med-low, med, med-high, high |
+| `AC_AIR` | `Air` | 0 or 1 | fresh-air valve; often unsupported |
+| `AC_BLO` | `Blo` | 0 or 1 | X-Fan / coil dry |
+| `AC_HEALTH` | `Health` | 0 or 1 | ionizer; often unsupported |
+| `AC_SWHSLP` | `SwhSlp` | 0 or 1 | sleep; write with `AC_SLPMOD` |
+| `AC_SLPMOD` | `SlpMod` | 0 or 1 | sleep companion field |
+| `AC_LIG` | `Lig` | 0 off, 1 on | front-panel display |
+| `AC_SWINGLFRIG` | `SwingLfRig` | 0–6, `enum ac_swing_h` | 0 as-is, 1 sweep, 2–6 fixed left→right |
+| `AC_SWUPDN` | `SwUpDn` | 0–11, `enum ac_swing_v` | 0 as-is, 1 full sweep, 2–6 fixed, 7–11 banded sweep |
+| `AC_QUIET` | `Quiet` | 0 off, usually **2** on | not 1; model dependent |
+| `AC_TUR` | `Tur` | 0 or 1 | turbo; excludes quiet on most units |
+| `AC_STHT` | `StHt` | 0 or 1 | 8 °C frost protection; heating models |
+| `AC_SVST` | `SvSt` | 0 or 1 | energy saving |
+| `AC_DWET` | `Dwet` | encoded, not % RH | dehumidifier target humidity |
+| `AC_DWATSEN` | `DwatSen` | raw | dehumidifier humidity sensor |
+| `AC_DFLTR` | `Dfltr` | 0 clear, 1 raised | clean-filter alert; read-only in practice |
+| `AC_DWATFUL` | `DwatFul` | 0 clear, 1 raised | water-tank-full alert |
+| `AC_DMOD` | `Dmod` | 0 default, 9 anion-only | dehumidifier mode; not `AC_MODE_DRY` |
+| `AC_HEATCOOLTYPE` | `HeatCoolType` | unknown | model flag, exposed raw |
+| `AC_BUZZER` | `Buzzer_ON_OFF` | 0 beeps, **1 silent** | inverted |
+
+Named constants for the multi-valued ones live in `enum ac_mode`, `enum ac_fan`,
+`enum ac_swing_h` and `enum ac_swing_v` in `include/gree.h`; prefer them to
+bare integers.
+
+> **nuGreeC does not validate values.** It sends what you give it and reports
+> what comes back, because the accepted range is model-specific and no unit
+> publishes it. An out-of-range write is typically clamped or ignored by the
+> device, and shows up as the old value on the next poll rather than as an
+> error. `ac_set()` stores into an `int16_t`, so anything outside −32768…32767
+> is truncated. Property values outside `enum ac_prop` are ignored outright.
 
 Worth knowing:
 
@@ -208,6 +255,19 @@ Worth knowing:
 
 `ac_set()` updates the local value immediately, so `ac_get()` reflects your
 intent before `ac_commit()` confirms it. A poll overwrites it with reality.
+
+```c
+if (ac_get(&ac, AC_QUIET) == AC_UNKNOWN)
+    /* this unit has never reported Quiet — do not assume it is off */;
+
+ac_set(&ac, AC_MOD,   AC_MODE_HEAT);
+ac_set(&ac, AC_WDSPD, AC_FAN_LOW);
+ac_set(&ac, AC_BUZZER, 1);          /* apply all three without the beep */
+ac_commit(&ac);
+```
+
+The dirty set is cleared only on a successful commit, so a failed one can just
+be retried.
 
 Properties the device reports that nuGreeC does not model are ignored, not an
 error. To read one, add it to `P_NAMES` in `src/gree.c` and to `enum ac_prop`
