@@ -1,0 +1,6 @@
+*.o
+*.a
+greectl
+tests/test_gree
+tests/test_asan
+tests/fuzz_parse

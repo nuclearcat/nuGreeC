@@ -1,0 +1,24 @@
+nuGreeC
+Copyright 2026 Denys Fedoryshchenko
+
+This product includes software developed by Denys Fedoryshchenko.
+
+Licensed under the Apache License, Version 2.0 (see LICENSE-APACHE) or the
+MIT license (see LICENSE-MIT), at your option.
+
+---
+
+nuGreeC is an independent implementation of the Gree local network protocol.
+It contains no code from any other project. The protocol itself - packet
+layout, field names, and the fixed key material every Gree module ships with -
+is factual interoperability information, documented publicly by the
+reverse-engineering work credited in README.md.
+
+Attribution for that prior work is given in README.md under "Credits". Note
+that two of the projects credited there (tomikaa87/gree-remote and
+cmroche/greeclimate) are GPL-licensed; they were used as protocol
+documentation, not as a source of code.
+
+The AES S-box and inverse S-box in src/gree_crypto.c were generated
+programmatically from the algebraic definition in FIPS PUB 197, not copied
+from another implementation.
