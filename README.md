@@ -1,6 +1,8 @@
 # nuGreeC
 
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![CI](https://github.com/nuclearcat/nuGreeC/actions/workflows/ci.yml/badge.svg)](https://github.com/nuclearcat/nuGreeC/actions/workflows/ci.yml)
+[![Docs](https://github.com/nuclearcat/nuGreeC/actions/workflows/docs.yml/badge.svg)](https://nuclearcat.github.io/nuGreeC/)
 [![Language: C99](https://img.shields.io/badge/language-C99-orange.svg)](#)
 [![Flash: 5 KB](https://img.shields.io/badge/flash-from%205.0%20KB-green.svg)](#footprint)
 
@@ -75,6 +77,26 @@ make CONFIG='-DGREE_ENABLE_V2=0 -DGREE_ENABLE_DISCOVERY=0'
 C99, no build-system requirements: drop `src/` and `include/` into your
 project. With the default backend only `gree.c` and `gree_crypto.c` produce
 any code — the other two backends compile to nothing unless selected.
+
+## Documentation
+
+The public header carries Doxygen comments, so **you get hover documentation
+in any clangd-backed editor** — VS Code, vim, CLion, Zed — with no build step.
+Every parameter documents its accepted range, since almost none of them are
+guessable: fan speed is 0–5, the vertical louver 0–11, quiet mode is 2 rather
+than 1 for on, and `AC_BUZZER` is inverted.
+
+For the generated reference:
+
+```sh
+git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css .doxygen-awesome
+make docs          # -> docs/html/index.html
+```
+
+`.github/workflows/docs.yml` publishes the same thing to GitHub Pages on every
+push to `main`. `WARN_NO_PARAMDOC` is on and warnings fail the build, so an
+undocumented parameter breaks CI rather than silently leaving a hole in the
+reference.
 
 ## The transport
 
@@ -488,13 +510,26 @@ Unless you explicitly state otherwise, any contribution intentionally
 submitted for inclusion in this work, as defined in the Apache-2.0 license,
 shall be dual licensed as above, without any additional terms or conditions.
 
+## Trademarks
+
+Gree, Gree+, Sinclair and Tosot are trademarks™ or registered® trademarks of
+their respective holders — among them Gree Electric Appliances, Inc. of Zhuhai.
+All other product, brand and company names mentioned in this repository are the
+trademarks™ or registered® trademarks of their respective holders.
+
+They appear here only descriptively, to identify the hardware and the vendor
+application this software interoperates with. Use of a name does not imply any
+affiliation with, endorsement by, or sponsorship from its holder.
+
+nuGreeC is an independent project. It is not affiliated with, endorsed by, or
+supported by Gree Electric Appliances or any of its subsidiaries or brands, and
+"nuGreeC" is not a Gree product name.
+
 ## Disclaimer
 
-Not affiliated with, endorsed by, or supported by Gree Electric Appliances.
-"Gree", "Sinclair" and "Tosot" are trademarks of their respective owners, used
-here only to say what this software talks to.
+This software controls a heating and cooling appliance. Do not build anything
+on it where a missed command or a stale reading has safety consequences — it is
+a best-effort UDP client for a device that answers roughly half of its
+broadcast scans.
 
-This controls a heating and cooling appliance. Do not build anything on it
-where a missed command or a stale reading has safety consequences — it is a
-best-effort UDP client for a device that answers roughly half of its broadcast
-scans.
+Provided as-is, without warranty of any kind, as set out in the license.

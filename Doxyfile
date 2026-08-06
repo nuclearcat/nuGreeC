@@ -1,0 +1,64 @@
+# Doxygen configuration for nuGreeC.
+#
+#   make docs        build into docs/html
+#
+# Only non-default settings are listed; doxygen supplies the rest. The theme is
+# doxygen-awesome-css, fetched into .doxygen-awesome (see the docs workflow).
+# Without it doxygen still builds, just with the stock stylesheet.
+
+PROJECT_NAME           = nuGreeC
+PROJECT_BRIEF          = "Gree / Sinclair / Tosot air-conditioner client for microcontrollers"
+PROJECT_NUMBER         = 1.0.0
+
+OUTPUT_DIRECTORY       = docs
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+INPUT                  = include src README.md
+FILE_PATTERNS          = *.h *.c *.md
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+
+# C, not C++: no classes, no namespaces.
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TYPEDEF_HIDES_STRUCT   = NO
+
+# Document the public API, not the internals. The .c files are indexed for
+# their file-level comments; their static helpers stay out of the reference.
+EXTRACT_ALL            = NO
+EXTRACT_STATIC         = NO
+EXTRACT_PRIVATE        = NO
+HIDE_UNDOC_MEMBERS     = YES
+
+# Resolve the feature #ifdefs so conditionally compiled API still appears.
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = GREE_ENABLE_V1=1 \
+                         GREE_ENABLE_V2=1 \
+                         GREE_ENABLE_DISCOVERY=1 \
+                         GREE_NAME_LEN=20 \
+                         GREE_ADDR_SZ=8 \
+                         GREE_PKT_BUF=768 \
+                         GREE_INNER_BUF=448 \
+                         GREE_CRYPTO=0 \
+                         GREE_CRYPTO_BUILTIN=0 \
+                         __cplusplus=
+
+# Catch doc rot: an undocumented parameter is a build warning.
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+
+SORT_MEMBER_DOCS       = NO
+SORT_BRIEF_DOCS        = NO
+
+# doxygen-awesome-css. HTML_COLORSTYLE must be LIGHT for doxygen >= 1.9.5;
+# the stylesheet handles dark mode itself via prefers-color-scheme.
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_COLORSTYLE        = LIGHT
+HTML_EXTRA_STYLESHEET  = .doxygen-awesome/doxygen-awesome.css

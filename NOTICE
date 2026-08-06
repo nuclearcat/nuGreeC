@@ -22,3 +22,17 @@ documentation, not as a source of code.
 The AES S-box and inverse S-box in src/gree_crypto.c were generated
 programmatically from the algebraic definition in FIPS PUB 197, not copied
 from another implementation.
+
+---
+
+TRADEMARKS
+
+Gree, Gree+, Sinclair and Tosot are trademarks or registered trademarks of
+their respective holders, among them Gree Electric Appliances, Inc. of Zhuhai.
+All other product, brand and company names referenced in this project are the
+trademarks or registered trademarks of their respective holders.
+
+Those names are used descriptively, to identify the hardware and the vendor
+application this software interoperates with. Such use implies no affiliation
+with, endorsement by, or sponsorship from the trademark holders. nuGreeC is an
+independent project and is not a Gree product.

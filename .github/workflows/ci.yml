@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and run the full suite
+        run: make check
+
+      # The library must build in every combination of its feature flags, not
+      # just the default one.
+      - name: Configuration matrix
+        run: |
+          for cfg in "" \
+                     "-DGREE_ENABLE_V2=0" \
+                     "-DGREE_ENABLE_V1=0" \
+                     "-DGREE_ENABLE_DISCOVERY=0" \
+                     "-DGREE_PKT_BUF=520 -DGREE_INNER_BUF=320 -DGREE_NAME_LEN=0"; do
+            echo "::group::CONFIG=$cfg"
+            make clean >/dev/null
+            make CONFIG="$cfg" && make test CONFIG="$cfg"
+            echo "::endgroup::"
+          done
+
+      - name: Warnings are errors
+        run: |
+          make clean >/dev/null
+          make CFLAGS="-Os -std=c99 -Wall -Wextra -Wpedantic -Werror"

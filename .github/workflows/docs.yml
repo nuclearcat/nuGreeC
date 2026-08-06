@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+name: docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Needed by actions/deploy-pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen graphviz
+
+      - name: Fetch the theme
+        run: |
+          git clone --depth 1 --branch v2.3.4 \
+            https://github.com/jothepro/doxygen-awesome-css.git .doxygen-awesome \
+          || git clone --depth 1 \
+            https://github.com/jothepro/doxygen-awesome-css.git .doxygen-awesome
+
+      # WARN_NO_PARAMDOC is on, so an undocumented parameter fails the build
+      # rather than quietly shipping a gap in the reference.
+      - name: Build
+        run: |
+          doxygen Doxyfile 2>doxygen.log || { cat doxygen.log; exit 1; }
+          if [ -s doxygen.log ]; then
+            echo "::error::doxygen emitted warnings"
+            cat doxygen.log
+            exit 1
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

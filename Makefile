@@ -57,6 +57,14 @@ fuzz: tests/fuzz_parse.c $(TESTDEP)
 
 check: test asan fuzz
 
+# API reference. Needs doxygen; the theme is optional but recommended:
+#   git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css .doxygen-awesome
+docs:
+	@command -v doxygen >/dev/null || { echo "doxygen not installed"; exit 1; }
+	doxygen Doxyfile
+	@echo "open docs/html/index.html"
+
+
 # Footprint of the library alone, without the POSIX example or libc.
 size: libgree.a
 	@size -t libgree.a | tail -3
@@ -68,5 +76,6 @@ size: libgree.a
 clean:
 	rm -f $(LIB_OBJ) examples/*.o libgree.a greectl \
 	      tests/test_gree tests/test_asan tests/fuzz_parse
+	rm -rf docs/html
 
-.PHONY: all test asan fuzz check size clean
+.PHONY: all test asan fuzz check docs size clean

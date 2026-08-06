@@ -4,3 +4,6 @@ greectl
 tests/test_gree
 tests/test_asan
 tests/fuzz_parse
+docs/
+.doxygen-awesome/
+doxygen.log
